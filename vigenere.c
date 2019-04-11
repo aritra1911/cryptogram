@@ -18,8 +18,6 @@ int main(int argc, char* argv[]) {
             case 'k':
                 key = optarg;
                 break;
-            case '?':
-                printf("%s\n", optarg);
         }
     }
 
