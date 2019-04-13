@@ -5,18 +5,23 @@
 #include <unistd.h>
 #include "shifts.h"
 
-void vigenere(char*, void*);
+void vigenere(char*, void*, int (*)(int, int));
 
 int main(int argc, char* argv[]) {
     char *key = NULL, *filename = NULL;
     bool flag_from_file = false;
+    int (*shift)(int, int) = shift_right;  // assume encryption by default
 
     // parse command line arguments
     char c;
-    while ((c = getopt (argc, argv, "k:")) != -1) {
+    while ((c = getopt(argc, argv, "dk:")) != -1) {
         switch (c) {
             case 'k':
                 key = optarg;
+                break;
+
+            case 'd':
+                shift = shift_left;
                 break;
         }
     }
@@ -35,17 +40,17 @@ int main(int argc, char* argv[]) {
     if (flag_from_file) {
         FILE* fp;
         if ((fp = fopen(filename, "r")) == NULL) {
-            printf("vigenere: can't open %s\n", filename);
+            fprintf(stderr, "vigenere: can't open %s\n", filename);
             return 1;
         }
-        vigenere(key, fp);
+        vigenere(key, fp, shift);
     } else
-        vigenere(key, stdin);
+        vigenere(key, stdin, shift);
 
     return 0;
 }
 
-void vigenere(char* key, void* input) {
+void vigenere(char* key, void* input, int (*shift)(int, int)) {
     int c, en_c, offset;
 
     for (int i = 0; (c = getc(input)) != EOF;) {
@@ -57,7 +62,7 @@ void vigenere(char* key, void* input) {
                 if (++i == strlen(key)) i = 0;
             offset = *(key + i);
             offset -= islower(offset) ? 'a' : 'A';
-            en_c = shift_right(c, offset);
+            en_c = shift(c, offset);
             i++;  // increment only when encryption occurs
         } else
             en_c = c;  // if not alphabet, don't change
