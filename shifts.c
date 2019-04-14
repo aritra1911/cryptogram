@@ -22,7 +22,7 @@ int adjust(int c, int ch) {
 }
 
 int mod26(int x) {
-    if (x >= 0) return x % 26;
-    else
-        return ((-x) / 26 + 1) * 26 + x;
+    int y = x % 26;
+    if (y >= 0) return y;
+    return 26 + y;
 }
