@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include "shifts.h"
 
+#define WILDCARD '?'
+
 void vigenere(char*, void*, int (*)(int, int));
 
 int main(int argc, char* argv[]) {
@@ -58,10 +60,13 @@ void vigenere(char* key, void* input, int (*shift)(int, int)) {
         if (i == strlen(key)) i = 0;
         if (isalpha(c)) {
             // if other character encountered in key, find the next alphabet
-            while (!isalpha(*(key + i)))
+            while (!isalpha(*(key + i)) && *(key + i) != WILDCARD)
                 if (++i == strlen(key)) i = 0;
-            offset = *(key + i);
-            offset -= islower(offset) ? 'a' : 'A';
+            if (*(key + i) == WILDCARD) offset = 0;
+            else {
+                offset = *(key + i);
+                offset -= islower(offset) ? 'a' : 'A';
+            }
             en_c = shift(c, offset);
             i++;  // increment only when encryption occurs
         } else
