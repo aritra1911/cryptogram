@@ -4,8 +4,8 @@ vigenere: vigenere.o shifts.o
 vignere.o: vigenere.c
 	gcc -c vigenere.c
 
-shifts.o: shifts.c
-	gcc -c shifts.c
+shifts.o: ../shifts/shifts.c
+	gcc -c ../shifts/shifts.c
 
 clean:
 	rm *o vigenere

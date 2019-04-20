@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include "shifts.h"
+#include "../shifts/shifts.h"
 
 #define WILDCARD '?'
 
