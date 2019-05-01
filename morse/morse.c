@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include <string.h>
 #include "tree_utils.h"
 
 void demorse(Node*, void*);
-void put_morse(Node*, int, char*);
+void morse(Node*, void*);
+void put_morse(Node*, int, bool*, char*);
 char* strcat_return(char*, char*);
 
 int main() {
@@ -19,7 +21,8 @@ int main() {
     Node* root = deserialize(fp);
     fclose(fp);
 
-    demorse(root, stdin);
+    // demorse(root, stdin);
+    morse(root, stdin);
     putchar('\n');
 
     return 0;
@@ -27,19 +30,14 @@ int main() {
 
 void demorse(Node* root, void* input) {
     Node* ptr = root;
-    int c, ch;
+    int c, ch, r_c = '\0';
     while ((c = getc(input)) != EOF) {
-        if (c == ' ') {
-            if (ch != '\0')
-                putchar(ch);
-            else {
-                fprintf(stdout, "\n%s\n", "Morse not in tree");
-                return;
-            }
-            ptr = root;
-        }
-        else if (c == '/')
-            ch = ' ';
+        if (r_c != '\0') { putchar(r_c); r_c = '\0'; }
+
+        if (c == ' ') { putchar(ch); ptr = root; ch = '\0'; }
+        else if (c == '/') ch = ' ';
+        else if (c == '\n') r_c = '\n';
+
         else if (c == '.' || c == '-') {
             if (c == '.')
                 ptr = ptr->left;
@@ -51,19 +49,39 @@ void demorse(Node* root, void* input) {
             else ch = '\0';
         }
     }
-    if (ch != '\0')
-        putchar(ch);
-    else
-        fprintf(stdout, "\n%s\n", "Morse not in tree");
+    putchar(ch);
 }
 
-void put_morse(Node* node, int ch, char* code) {
+void morse(Node* root, void* input) {
+    int c, r_c = '\0'; bool flag, sp = false;
+    while ((c = tolower(getc(input))) != EOF) {
+        flag = false;
+        if (r_c != '\0') {
+            putchar(r_c);
+            r_c = '\0'; sp = false;
+        } else if (sp == true && c != '\n') {
+            putchar(' '); sp = false;
+        }
+
+        if (c == ' ') { putchar('/'); flag = true; }
+        else if (c == '\n') r_c = '\n';
+        else put_morse(root, c, &flag, "");
+
+        if (flag && r_c == '\0') sp = true;
+    }
+}
+
+void put_morse(Node* node, int ch, bool* flag, char* code) {
     if (node == NULL) return;
-    if (node->character == ch)
+    if (node->character == ch) {
         printf("%s", code);
-    else {
-        put_morse(node->left, ch, strcat_return(code, "."));
-        put_morse(node->right, ch, strcat_return(code, "-"));
+        *flag = true;
+    } else {
+        if (!*flag)
+            put_morse(node->left, ch, flag, strcat_return(code, "."));
+
+        if (!*flag)
+            put_morse(node->right, ch, flag, strcat_return(code, "-"));
     }
 }
 
