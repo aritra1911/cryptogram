@@ -21,8 +21,8 @@ int main() {
     Node* root = deserialize(fp);
     fclose(fp);
 
-    // demorse(root, stdin);
-    morse(root, stdin);
+    demorse(root, stdin);
+    // morse(root, stdin);
     putchar('\n');
 
     return 0;
@@ -32,11 +32,18 @@ void demorse(Node* root, void* input) {
     Node* ptr = root;
     int c, ch, r_c = '\0';
     while ((c = getc(input)) != EOF) {
-        if (r_c != '\0') { putchar(r_c); r_c = '\0'; }
+        if (r_c != '\0') {
+            putchar(r_c);
+            r_c = '\0';
+        }
 
-        if (c == ' ') { putchar(ch); ptr = root; ch = '\0'; }
+        if (isspace(c)) {
+            putchar(ch);
+            ptr = root;
+            ch = '\0';
+            if (c == '\n') r_c = c;
+        }
         else if (c == '/') ch = ' ';
-        else if (c == '\n') r_c = '\n';
 
         else if (c == '.' || c == '-') {
             if (c == '.')
@@ -77,11 +84,13 @@ void put_morse(Node* node, int ch, bool* flag, char* code) {
         printf("%s", code);
         *flag = true;
     } else {
-        if (!*flag)
-            put_morse(node->left, ch, flag, strcat_return(code, "."));
+        if (!*flag) put_morse(
+            node->left, ch, flag, strcat_return(code, ".")
+        );
 
-        if (!*flag)
-            put_morse(node->right, ch, flag, strcat_return(code, "-"));
+        if (!*flag) put_morse(
+            node->right, ch, flag, strcat_return(code, "-")
+        );
     }
 }
 
