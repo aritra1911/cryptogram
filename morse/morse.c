@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <string.h>
+#include <unistd.h>
 #include "tree_utils.h"
 
 void demorse(Node*, void*);
@@ -10,7 +11,7 @@ void morse(Node*, void*);
 void put_morse(Node*, int, bool*, char*);
 char* strcat_return(char*, char*);
 
-int main() {
+int main(int argc, char* argv[]) {
     FILE* fp;
     if ((fp = fopen("tree.txt", "r")) == NULL &&
         (fp = fopen("morse/tree.txt", "r")) == NULL) {
@@ -21,8 +22,35 @@ int main() {
     Node* root = deserialize(fp);
     fclose(fp);
 
-    demorse(root, stdin);
-    // morse(root, stdin);
+    char c; char* filename;
+    bool decrypt = false, flag_from_file = false;
+    void* input = stdin;
+
+    while ((c = getopt(argc, argv, "d")) != -1) {
+        switch (c) {
+            case 'd':
+                decrypt = true;
+                break;
+        }
+    }
+
+    if (argc > optind) {
+        // input comes from file
+        filename = *(argv + optind);
+        flag_from_file = true;
+    }
+
+    if (flag_from_file) {
+        if ((fp = fopen(filename, "r")) == NULL) {
+            fprintf(stderr, "morse: can't open %s\n", filename);
+            return 1;
+        }
+        input = fp;
+    }
+
+    if (!decrypt) morse(root, input);
+    else demorse(root, input);
+
     putchar('\n');
 
     return 0;
