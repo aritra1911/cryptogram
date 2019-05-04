@@ -4,7 +4,7 @@
 #include <math.h>
 #include "write_audio.h"
 
-#define N 44100     // Sampling Frequency
+#define N 8000     // Sampling Frequency
 #define A 16383.0   // Amplitude of sine wave
 #define F 1000.0    // Frequency of sine wave
 #define TAU 2.0*M_PI
@@ -12,7 +12,6 @@
 
 #define MAX_BUFFER 100
 #define FFMPEG_BIN "ffmpeg"
-#define FILENAME "morse.wav"
 
 void update_buffer_length();
 int16_t silence(int);
@@ -48,11 +47,11 @@ void correct_audio_buffer(float unit) {
     write_silence(correct(buffer_duration) - buffer_duration);
 }
 
-void render_file() {
+void render_file(char* filename) {
     // Pipe the audio data to ffmpeg, which writes it to a wav file
     FILE* pipeout;
 
-    char* command = malloc(100 * sizeof(char));
+    char* command = malloc(MAX_BUFFER * sizeof(char));
     sprintf(command, "%s %s %s %s %s %d %s %s %s %d %s %s %s",
         FFMPEG_BIN,
         "-y",  // overwrite output file if it exists
@@ -61,9 +60,10 @@ void render_file() {
         "-i", "-",  // The input comes from a pipe
         "-ac", 1,  // Tells FFMPEG to expect an audio channel
         "-loglevel", "error",
-        FILENAME
+        filename
     );
 
+    // printf("%s\n", command);
     pipeout = popen(command, "w");
     fwrite(head, 2 * buffer_duration, N, pipeout);
     pclose(pipeout);
@@ -81,55 +81,55 @@ int16_t note(int t) {
 }
 
 
-int main() {
-    float wpm = 15;
-    float unit = 6.0 / (5.0 * wpm);
-    init_write();
-
-    write_note(unit);
-    write_silence(unit);
-    write_note(3.0 * unit);
-    write_silence(unit);
-    write_note(3.0 * unit);
-    write_silence(unit);
-    write_note(unit);
-    write_silence(unit);
-
-    write_silence(2.0 * unit);
-
-    write_note(unit);
-    write_silence(unit);
-    write_note(3.0 * unit);
-    write_silence(unit);
-
-    write_silence(2.0 * unit);
-
-    write_note(unit);
-    write_silence(unit);
-    write_note(3.0 * unit);
-    write_silence(unit);
-    write_note(unit);
-    write_silence(unit);
-
-    write_silence(2.0 * unit);
-    write_silence(unit);
-
-    write_note(unit);
-    write_silence(unit);
-    write_note(unit);
-    write_silence(unit);
-
-    write_silence(2.0 * unit);
-
-    write_note(unit);
-    write_silence(unit);
-    write_note(unit);
-    write_silence(unit);
-    write_note(unit);
-    write_silence(unit);
-
-    correct_audio_buffer(unit);
-
-    render_file();
-    return 0;
-}
+// int main() {
+//     float wpm = 15;
+//     float unit = 6.0 / (5.0 * wpm);
+//     init_write();
+//
+//     write_note(unit);
+//     write_silence(unit);
+//     write_note(3.0 * unit);
+//     write_silence(unit);
+//     write_note(3.0 * unit);
+//     write_silence(unit);
+//     write_note(unit);
+//     write_silence(unit);
+//
+//     write_silence(2.0 * unit);
+//
+//     write_note(unit);
+//     write_silence(unit);
+//     write_note(3.0 * unit);
+//     write_silence(unit);
+//
+//     write_silence(2.0 * unit);
+//
+//     write_note(unit);
+//     write_silence(unit);
+//     write_note(3.0 * unit);
+//     write_silence(unit);
+//     write_note(unit);
+//     write_silence(unit);
+//
+//     write_silence(2.0 * unit);
+//     write_silence(unit);
+//
+//     write_note(unit);
+//     write_silence(unit);
+//     write_note(unit);
+//     write_silence(unit);
+//
+//     write_silence(2.0 * unit);
+//
+//     write_note(unit);
+//     write_silence(unit);
+//     write_note(unit);
+//     write_silence(unit);
+//     write_note(unit);
+//     write_silence(unit);
+//
+//     correct_audio_buffer(unit);
+//
+//     render_file();
+//     return 0;
+// }
