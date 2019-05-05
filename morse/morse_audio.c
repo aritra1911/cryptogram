@@ -5,14 +5,14 @@ void calculate_units();
 
 float unit = 0, f_unit = 0;
 
-void init_audio(int wpm, int fwpm) {
+void init_audio(int wpm, int fwpm, int n, float f, float a) {
     if (!wpm && !fwpm)
         wpm = fwpm = 15;  // default
     else if (!fwpm) fwpm = wpm;
     else if (!wpm) wpm = fwpm;
 
     calculate_units(wpm, fwpm);
-    init_write();
+    init_write(n, f, a);
 }
 
 int write_code(int ch) {

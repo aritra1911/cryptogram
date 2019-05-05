@@ -23,9 +23,10 @@ int main(int argc, char* argv[]) {
     Node* root = deserialize(fp);
     fclose(fp);
 
-    char c; char *filename, *output_filename = "morse.wav";
+    int c; char *filename, *output_filename = "morse.wav";
     bool decrypt = false, flag_from_file = false, audio = false;
     int wpm = 0, fwpm = 0;
+    int sample_rate = 8000; float frequency = 1000, amplitude = 16383;
     FILE* input = stdin;
 
     while (true) {
@@ -35,23 +36,33 @@ int main(int argc, char* argv[]) {
             { "words-per-minute",           required_argument, 0, 'w' },
             { "fansworth-words-per-minute", required_argument, 0, 'f' },
             { "output-filename",            required_argument, 0, 'o' },
+            { "frequency",                  required_argument, 0, 'F' },
+            { "sample-rate",                required_argument, 0, 'N' },
+            { "amplitude",                  required_argument, 0, 'A' },
             { 0, 0, 0, 0 }
         };
         // getopt_long stores the option index here.
         int option_index = 0;
 
-        c = getopt_long(argc, argv, "adw:f:o:", long_options, &option_index);
+        c = getopt_long(
+            argc, argv,
+            "adw:f:o:F:N:A:",
+            long_options, &option_index
+        );
 
         // Detect the end of the options.
         if (c == -1) break;
 
         switch (c) {
-            case 0: break;
-            case 'a': audio = true;             break;
-            case 'd': decrypt = true;           break;
-            case 'w': wpm = atoi(optarg);       break;
-            case 'f': fwpm = atoi(optarg);      break;
-            case 'o': output_filename = optarg; break;
+            case   0:                             break;
+            case 'a': audio = true;               break;
+            case 'd': decrypt = true;             break;
+            case 'w': wpm = atoi(optarg);         break;
+            case 'f': fwpm = atoi(optarg);        break;
+            case 'o': output_filename = optarg;   break;
+            case 'N': sample_rate = atoi(optarg); break;
+            case 'F': frequency = atoi(optarg);   break;
+            case 'A': amplitude = atoi(optarg);   break;
             case '?':
                 // getopt_long already printed an error message.
                 break;
@@ -80,13 +91,13 @@ int main(int argc, char* argv[]) {
         if (!audio)
             morse(root, input, putchar);
         else {
-            init_audio(wpm, fwpm);
+            init_audio(wpm, fwpm, sample_rate, frequency, amplitude);
             morse(root, input, write_code);
             export_audio(output_filename);
         }
     } else demorse(root, input);
 
-    putchar('\n');
+    if (!audio) putchar('\n');
 
     return 0;
 }
