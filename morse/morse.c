@@ -31,14 +31,14 @@ int main(int argc, char* argv[]) {
 
     while (true) {
         static struct option long_options[] = {
-            { "audio",                      no_argument,       0, 'a' },
-            { "decrypt",                    no_argument,       0, 'd' },
-            { "words-per-minute",           required_argument, 0, 'w' },
-            { "fansworth-words-per-minute", required_argument, 0, 'f' },
-            { "output-filename",            required_argument, 0, 'o' },
-            { "frequency",                  required_argument, 0, 'F' },
-            { "sample-rate",                required_argument, 0, 'N' },
-            { "amplitude",                  required_argument, 0, 'A' },
+            { "audio",            no_argument,       0, 'a' },
+            { "decrypt",          no_argument,       0, 'd' },
+            { "speed",            required_argument, 0, 's' },
+            { "farnsworth-speed", required_argument, 0, 'f' },
+            { "output-filename",  required_argument, 0, 'o' },
+            { "frequency",        required_argument, 0, 'F' },
+            { "sample-rate",      required_argument, 0, 'N' },
+            { "amplitude",        required_argument, 0, 'A' },
             { 0, 0, 0, 0 }
         };
         // getopt_long stores the option index here.
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 
         c = getopt_long(
             argc, argv,
-            "adw:f:o:F:N:A:",
+            "ads:f:o:F:N:A:",
             long_options, &option_index
         );
 
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
             case   0:                             break;
             case 'a': audio = true;               break;
             case 'd': decrypt = true;             break;
-            case 'w': wpm = atoi(optarg);         break;
+            case 's': wpm = atoi(optarg);         break;
             case 'f': fwpm = atoi(optarg);        break;
             case 'o': output_filename = optarg;   break;
             case 'N': sample_rate = atoi(optarg); break;
