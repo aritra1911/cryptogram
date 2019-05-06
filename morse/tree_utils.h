@@ -6,6 +6,6 @@ typedef struct _Node {
 
 Node* new_node(int);
 void serialize(Node*, FILE*);
-Node* deserialize(FILE*);
+void deserialize(Node**, FILE*);
 void place_in_tree(Node*, int, char*);
 void print_traversal(Node*);

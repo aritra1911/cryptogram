@@ -14,19 +14,20 @@ char* strcat_return(char*, char*);
 
 int main(int argc, char* argv[]) {
     FILE* fp;
-    if ((fp = fopen("tree.txt", "r")) == NULL &&
-        (fp = fopen("morse/tree.txt", "r")) == NULL) {
+    if ((fp = fopen("tree.dat", "r")) == NULL &&
+        (fp = fopen("morse/tree.dat", "r")) == NULL) {
 
         puts("Could not read file");
         return 0;
     }
-    Node* root = deserialize(fp);
+    Node* root = NULL;
+    deserialize(&root, fp);
     fclose(fp);
 
     int c; char *filename, *output_filename = "morse.wav";
     bool decrypt = false, flag_from_file = false, audio = false;
-    int wpm = 0, fwpm = 0;
-    int sample_rate = 8000; float frequency = 1000, amplitude = 16383;
+    int wpm = 0, fwpm = 0, sample_rate = 8000;
+    float frequency = 1000, amplitude = 16383;
     FILE* input = stdin;
 
     while (true) {
@@ -36,8 +37,8 @@ int main(int argc, char* argv[]) {
             { "speed",            required_argument, 0, 's' },
             { "farnsworth-speed", required_argument, 0, 'f' },
             { "output-filename",  required_argument, 0, 'o' },
-            { "frequency",        required_argument, 0, 'F' },
             { "sample-rate",      required_argument, 0, 'N' },
+            { "frequency",        required_argument, 0, 'F' },
             { "amplitude",        required_argument, 0, 'A' },
             { 0, 0, 0, 0 }
         };
@@ -159,7 +160,6 @@ void put_morse(Node* node, int ch, bool* flag,
     if (node->character == ch) {
         while (*code != '\0')
             putmorse(*(code++));
-        // printf("%s", code);
         *flag = true;
     } else {
         if (!*flag) put_morse(
