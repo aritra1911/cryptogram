@@ -1,8 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include <unistd.h>
+#include <getopt.h>
 #include "../shifts/shifts.h"
 
 #define WILDCARD '?'
@@ -13,18 +14,32 @@ int main(int argc, char* argv[]) {
     char *key = NULL, *filename = NULL;
     bool flag_from_file = false;
     int (*shift)(int, int) = shift_right;  // assume encryption by default
+    FILE* input = stdin;
 
     // parse command line arguments
-    char c;
-    while ((c = getopt(argc, argv, "dk:")) != -1) {
-        switch (c) {
-            case 'k':
-                key = optarg;
-                break;
+    int c;
+    while (true) {
+        static struct option long_options[] = {
+            { "key",     required_argument, 0, 'k' },
+            { "decrypt", no_argument,       0, 'd' },
+            { 0, 0, 0, 0 }
+        };
+        // getopt_long stores the option index here.
+        int option_index = 0;
 
-            case 'd':
-                shift = shift_left;
+        c = getopt_long(argc, argv, "dk:", long_options, &option_index);
+
+        // Detect the end of the options.
+        if (c == -1) break;
+
+        switch (c) {
+            case   0:
+            case '?': // getopt_long already printed an error message.
                 break;
+            case 'k': key = optarg;       break;
+            case 'd': shift = shift_left; break;
+
+            default: abort();
         }
     }
 
@@ -39,15 +54,12 @@ int main(int argc, char* argv[]) {
         flag_from_file = true;
     }
 
-    if (flag_from_file) {
-        FILE* fp;
-        if ((fp = fopen(filename, "r")) == NULL) {
-            fprintf(stderr, "vigenere: can't open %s\n", filename);
-            return 1;
-        }
-        vigenere(key, fp, shift);
-    } else
-        vigenere(key, stdin, shift);
+    if (flag_from_file && (input = fopen(filename, "r")) == NULL) {
+        fprintf(stderr, "vigenere: can't open %s\n", filename);
+        return 1;
+    }
+
+    vigenere(key, input, shift);
 
     return 0;
 }
