@@ -8,7 +8,7 @@
 
 #define WILDCARD '?'
 
-void vigenere(char*, void*, int (*)(int, int));
+void vigenere(char*, FILE*, int (*)(int, int));
 
 int main(int argc, char* argv[]) {
     char *key = NULL, *filename = NULL;
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void vigenere(char* key, void* input, int (*shift)(int, int)) {
+void vigenere(char* key, FILE* input, int (*shift)(int, int)) {
     int c, en_c, offset;
 
     for (int i = 0; (c = getc(input)) != EOF;) {
