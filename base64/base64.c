@@ -9,26 +9,35 @@ int main(void) {
 }
 
 void base64(void) {
-    int delta = 0, read = 0;
+    int delta = 0, read = 0, i=0;
     unsigned char octet, sextet = 0;
 
-    while (true) {
+    while (i<28) {
         if (delta == 0) {
             if ((octet = getchar()) == EOF) break;
             delta += 8;
         }
 
         if (!read && delta >= 6) {
-            printf("%d\n", octet >> 2);
+            if (delta > 6)
+                printf("%d\n", octet >> (delta - 6));
+            else {
+                unsigned char mask = (1 << delta) - 1;
+                printf("%d\n", octet & mask);
+            }
+            i++;  // register a sextet
             delta -= 6;
         } else if (!read) {
-            read = (6 - delta);
-            sextet = (octet & ((1 << delta) - 1)) << read;
-            delta = 0;
+            read = delta;
+            sextet = (octet & ((1 << delta) - 1)) << (6 - read);
+            delta = 0;  // we're done with this octet.
         } else {
-            sextet |= octet >> (8 - read);
+            read = 6 - read;  // prepare to read the rest of sextet
+            sextet |= octet >> (delta - read);
             printf("%d\n", sextet);
-            break;
+            i++;  // register a sextet
+            delta -= read;
+            read = 0;  // we're done reading that sextet
         }
     }
 }
