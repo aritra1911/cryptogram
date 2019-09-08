@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define BASE64_CHARACTER_SET \
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+#define mask(delta) (1 << delta) - 1
+
 void base64(void);
 
 int main(void) {
@@ -12,36 +17,38 @@ void base64(void) {
     int delta = 0, read = 0, i=0;
     unsigned char octet, sextet = 0;
 
+    char* char_set = BASE64_CHARACTER_SET;
+
     while (true) {
         if (delta == 0) {
             octet = getchar();
             if ((signed char)octet == EOF) {
-                printf("EOF\n");
+                if (read) {
+                    putchar(char_set[sextet]);
+                    for (int i = 0; i < (6 - read); i += 2)
+                        putchar('=');
+                }
+                putchar('\n');
                 break;
-            } else if (octet == '\n') {
-                printf("\n");
-                continue;
             }
+            else if (octet == '\n') continue;
             delta += 8;
         }
 
         if (!read && delta >= 6) {
             if (delta > 6)
-                printf("%d\n", octet >> (delta - 6));
-            else {
-                unsigned char mask = (1 << delta) - 1;
-                printf("%d\n", octet & mask);
-            }
+                putchar(char_set[octet >> (delta - 6)]);
+            else
+                putchar(char_set[octet & mask(delta)]);
             delta -= 6;
         } else if (!read) {
             read = delta;
-	    unsigned char mask = (1 << delta) - 1;
-            sextet = (octet & mask) << (6 - read);
+            sextet = (octet & mask(delta)) << (6 - read);
             delta = 0;  // we're done with this octet.
         } else {
             read = 6 - read;  // prepare to read the rest of sextet
             sextet |= octet >> (delta - read);
-            printf("%d\n", sextet);
+            putchar(char_set[sextet]);
             delta -= read;
             read = 0;  // we're done reading that sextet
         }
