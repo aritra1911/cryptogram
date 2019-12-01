@@ -1,4 +1,7 @@
-all: caesar morse vigenere
+all: base64 caesar morse vigenere
+
+base64: base64.o
+	gcc base64.o -o base64.out
 
 caesar: caesar.o shifts.o
 	gcc caesar.o shifts.o -o caesar.out
@@ -8,6 +11,9 @@ morse: morse.o tree_utils.o morse_audio.o write_audio.o
 
 vigenere: vigenere.o shifts.o
 	gcc vigenere.o shifts.o -o vigenere.out
+
+base64.o: base64/base64.c
+	gcc -c base64/base64.c
 
 caesar.o: caesar/caesar.c
 	gcc -c caesar/caesar.c
