@@ -21,23 +21,23 @@ int main(void) {
 
 void base64_encode(void) {
     int delta = 0, read = 0;
-    unsigned char octet, sextet;
+    unsigned char octet, sextet=0;
 
     char* char_set = BASE64_CHARACTER_SET;
 
     while (true) {
         if (!delta) {
-            octet = getchar();
-            if ((signed char)octet == EOF) {
+            int c = getchar();
+            
+            if (c == EOF) {
                 if (read) {
                     putchar(char_set[sextet]);
                     for (int i = 0; i < (6 - read); i += 2)
                         putchar('=');
                 }
-                putchar('\n');
                 break;
             }
-            else if (octet == '\n') continue;
+            octet = c;
             delta += 8;
         }
 
@@ -68,12 +68,9 @@ void base64_decode(void) {
 
     while (true) {
         if (!delta) {
-            char c = getchar();
+            int c = getchar();
 
-            if (c == EOF) {
-                putchar('\n');
-                break;
-            }
+            if (c == EOF) break;
             else if (!convert_base64_to_index(&sextet, c, BASE64_CHARACTER_SET))
                 continue;
             delta += 6;
