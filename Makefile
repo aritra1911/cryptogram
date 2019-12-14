@@ -6,6 +6,9 @@ base64: base64.o
 caesar: caesar.o shifts.o
 	gcc caesar.o shifts.o -o caesar.out
 
+hex: hex.o
+	gcc hex.o -o hex.out
+
 morse: morse.o tree_utils.o morse_audio.o write_audio.o
 	gcc morse.o tree_utils.o morse_audio.o write_audio.o -o morse.out -lm
 
@@ -17,6 +20,9 @@ base64.o: base64/base64.c
 
 caesar.o: caesar/caesar.c
 	gcc -c caesar/caesar.c
+
+hex.o:
+	gcc -c hex/hex.c
 
 morse.o: morse/morse.c
 	gcc -c morse/morse.c
