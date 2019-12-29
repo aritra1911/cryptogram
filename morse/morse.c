@@ -12,6 +12,8 @@ void morse(Node*, FILE*, int (*)(int));
 void put_morse(Node*, int, bool*, int (*)(int), char*);
 char* strcat_return(char*, char*);
 
+int previous_character = '\0';
+
 int main(int argc, char* argv[]) {
     FILE* fp;
     if ((fp = fopen("tree.dat", "r")) == NULL &&
@@ -83,7 +85,7 @@ int main(int argc, char* argv[]) {
     if (flag_from_file) {
         if ((fp = fopen(filename, "r")) == NULL) {
             fprintf(stderr, "morse: can't open %s\n", filename);
-            return 1;
+            abort();
         }
         input = fp;
     }
@@ -92,7 +94,8 @@ int main(int argc, char* argv[]) {
         if (!audio)
             morse(root, input, putchar);
         else {
-            init_audio(wpm, fwpm, sample_rate, frequency, amplitude);
+            if(!init_audio(wpm, fwpm, sample_rate, frequency, amplitude))
+                abort();  // if initializing fails
             morse(root, input, write_code);
             export_audio(output_filename);
         }
@@ -134,40 +137,40 @@ void demorse(Node* root, FILE* input) {
     putchar(ch);
 }
 
-void morse(Node* root, FILE* input, int (*putmorse)(int)) {
+void morse(Node* root, FILE* input, int (*write_morse)(int)) {
     int c, r_c = '\0'; bool flag, sp = false;
     while ((c = tolower(getc(input))) != EOF) {
         flag = false;
         if (r_c != '\0') {
-            putmorse(r_c);
+            write_morse(r_c);
             r_c = '\0'; sp = false;
         } else if (sp == true && c != '\n') {
-            putmorse(' '); sp = false;
+            write_morse(' '); sp = false;
         }
 
-        if (c == ' ') { putmorse('/'); flag = true; }
+        if (c == ' ') { write_morse('/'); flag = true; }
         else if (c == '\n') r_c = '\n';
-        else put_morse(root, c, &flag, putmorse, "");
+        else put_morse(root, c, &flag, write_morse, "");
 
         if (flag && r_c == '\0') sp = true;
     }
 }
 
 void put_morse(Node* node, int ch, bool* flag,
-                int (*putmorse)(int), char* code) {
+                int (*write_morse)(int), char* code) {
 
     if (node == NULL) return;
     if (node->character == ch) {
         while (*code != '\0')
-            putmorse(*(code++));
+            write_morse(*(code++));
         *flag = true;
     } else {
         if (!*flag) put_morse(
-            node->left, ch, flag, putmorse, strcat_return(code, ".")
+            node->left, ch, flag, write_morse, strcat_return(code, ".")
         );
 
         if (!*flag) put_morse(
-            node->right, ch, flag, putmorse, strcat_return(code, "-")
+            node->right, ch, flag, write_morse, strcat_return(code, "-")
         );
     }
 }

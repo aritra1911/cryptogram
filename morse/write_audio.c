@@ -18,6 +18,7 @@ void write(float, int16_t (*)(int));
 int16_t *audio_buffer, *head;
 int buffer_length, sample_rate;
 float buffer_duration, frequency, amplitude;
+extern float unit;
 
 void init_write(int n, float f, float a) {
     sample_rate = n;
@@ -41,7 +42,7 @@ void write(float duration, int16_t (*f)(int)) {
     for (int t = 0; t < samples; t++) *(audio_buffer++) = f(t);
 }
 
-void correct_audio_buffer(float unit) {
+void correct_audio_buffer() {
     buffer_duration -= unit;  // remove extra unit of silence
 
     // add padding to round off to a multiple of 0.5 seconds
@@ -64,7 +65,6 @@ void render_file(char* filename) {
         filename
     );
 
-    // printf("%s\n", command);
     pipeout = popen(command, "w");
     fwrite(head, 2 * buffer_duration, sample_rate, pipeout);
     pclose(pipeout);
