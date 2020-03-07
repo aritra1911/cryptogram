@@ -115,13 +115,13 @@ void demorse(Node* root, FILE* input) {
             r_c = '\0';
         }
 
-        if (isspace(c)) {
+        if (isspace(c) || c == '/') {
             putchar(ch);
             ptr = root;
             ch = '\0';
             if (c == '\n') r_c = c;
+            else if (c == '/') r_c = ' ';
         }
-        else if (c == '/') ch = ' ';
 
         else if (c == '.' || c == '-') {
             if (c == '.')
@@ -145,14 +145,20 @@ void morse(Node* root, FILE* input, int (*write_morse)(int)) {
             write_morse(r_c);
             r_c = '\0'; sp = false;
         } else if (sp == true && c != '\n') {
-            write_morse(' '); sp = false;
+            if (c != ' ')
+                write_morse(' ');
+            sp = false;
         }
 
-        if (c == ' ') { write_morse('/'); flag = true; }
-        else if (c == '\n') r_c = '\n';
-        else put_morse(root, c, &flag, write_morse, "");
+        if (c == ' ') {
+            write_morse('/');
+            flag = true;
+        } else if (c == '\n')
+            r_c = '\n';
+        else 
+            put_morse(root, c, &flag, write_morse, "");
 
-        if (flag && r_c == '\0') sp = true;
+        if (flag && r_c == '\0' && c != ' ') sp = true;
     }
 }
 
