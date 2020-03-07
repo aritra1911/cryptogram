@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 
 void demorse(Node* root, FILE* input) {
     Node* ptr = root;
-    int c, ch, r_c = '\0';
+    int c, ch='\0', r_c = '\0';
     while ((c = getc(input)) != EOF) {
         if (r_c != '\0') {
             putchar(r_c);
@@ -118,12 +118,13 @@ void demorse(Node* root, FILE* input) {
         if (isspace(c) || c == '/') {
             putchar(ch);
             ptr = root;
-            ch = '\0';
+            ch = (c == '/') ? ' ' : '\0';
             if (c == '\n') r_c = c;
-            else if (c == '/') r_c = ' ';
-        }
-
-        else if (c == '.' || c == '-') {
+        } else if (c == '.' || c == '-') {
+            if (ch == ' ') {
+                putchar(ch);
+                ch = '\0';
+            }
             if (c == '.')
                 ptr = ptr->left;
             else if (c == '-')
