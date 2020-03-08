@@ -7,12 +7,17 @@
 #include "tree_utils.h"
 #include "morse_audio.h"
 
+#define DEFAULT_WPM 15
+
 void demorse(Node*, FILE*);
 void morse(Node*, FILE*, int (*)(int));
 void put_morse(Node*, int, bool*, int (*)(int), char*);
+void json_head(int, int);
+void json_tail();
 char* strcat_return(char*, char*);
 
 int previous_character = '\0';
+static int json_flag = 0;
 
 int main(int argc, char* argv[]) {
     FILE* fp;
@@ -34,14 +39,17 @@ int main(int argc, char* argv[]) {
 
     while (true) {
         static struct option long_options[] = {
-            { "audio",            no_argument,       0, 'a' },
-            { "decrypt",          no_argument,       0, 'd' },
-            { "speed",            required_argument, 0, 's' },
-            { "farnsworth-speed", required_argument, 0, 'f' },
-            { "output-filename",  required_argument, 0, 'o' },
-            { "sample-rate",      required_argument, 0, 'N' },
-            { "frequency",        required_argument, 0, 'F' },
-            { "amplitude",        required_argument, 0, 'A' },
+            // These options set a flag
+            { "json",             no_argument, &json_flag,   1 },
+            // These options don't set a flag
+            { "audio",            no_argument,          0, 'a' },
+            { "decrypt",          no_argument,          0, 'd' },
+            { "speed",            required_argument,    0, 's' },
+            { "farnsworth-speed", required_argument,    0, 'f' },
+            { "output-filename",  required_argument,    0, 'o' },
+            { "sample-rate",      required_argument,    0, 'N' },
+            { "frequency",        required_argument,    0, 'F' },
+            { "amplitude",        required_argument,    0, 'A' },
             { 0, 0, 0, 0 }
         };
         // getopt_long stores the option index here.
@@ -94,8 +102,25 @@ int main(int argc, char* argv[]) {
         if (!audio)
             morse(root, input, putchar);
         else {
-            if(!init_audio(wpm, fwpm, sample_rate, frequency, amplitude))
-                abort();  // if initializing fails
+            if (!wpm && !fwpm)
+                wpm = fwpm = DEFAULT_WPM;  // default
+            else if (!fwpm) fwpm = wpm;
+            else if (!wpm) wpm = DEFAULT_WPM;  // default
+            else if (fwpm > wpm) {
+                fprintf(stderr,
+                    "morse: Farnsworth speed cannot be greater than speed.\n"
+                );
+                abort();
+            }
+
+            if (json_flag) {
+                json_head(wpm, fwpm);
+                morse(root, input, putchar);
+                json_tail();
+                return 0;
+            }
+
+            init_audio(wpm, fwpm, sample_rate, frequency, amplitude);
             morse(root, input, write_code);
             export_audio(output_filename);
         }
@@ -180,6 +205,14 @@ void put_morse(Node* node, int ch, bool* flag,
             node->right, ch, flag, write_morse, strcat_return(code, "-")
         );
     }
+}
+
+void json_head(int wpm, int fwpm) {
+    fprintf(stdout, "{\"wpm\":%d,\"fwpm\":%d,\"code\":\"", wpm, fwpm);
+}
+
+void json_tail() {
+    fprintf(stdout, "\"}");
 }
 
 char* strcat_return(char* str1, char* str2) {

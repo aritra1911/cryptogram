@@ -7,25 +7,12 @@
 float unit, f_unit;
 extern int previous_character;
 
-bool init_audio(int wpm, int fwpm, int n, float f, float a) {
-    if (!wpm && !fwpm)
-        wpm = fwpm = 15;  // default
-    else if (!fwpm) fwpm = wpm;
-    else if (!wpm) wpm = 15;  // default
-    else if (fwpm > wpm) {
-        fprintf(
-            stderr, "morse: Farnsworth speed cannot be greater than speed.\n"
-        );
-        return false;
-    }
-
+void init_audio(int wpm, int fwpm, int n, float f, float a) {
     // calculate units
     unit = 6.0 / (5.0 * wpm);
     f_unit = ((60.0 / fwpm) - (31.0 * unit)) / 19.0;
 
     init_write(n, f, a);
-
-    return true;
 }
 
 int write_code(int ch) {
