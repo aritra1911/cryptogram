@@ -30,9 +30,14 @@ below.
    git clone https://github.com/aritra1911/cryptogram.git
    ```
 
-2. Make sure you got `gcc` installed.
+2. cd
+   ```sh
+   cd cryptogram
+   ```
 
-3. Make
+3. Make sure you got `gcc` installed.
+
+4. Make
    ```sh
    make all
    ```
@@ -48,10 +53,10 @@ below.
    ```sh
    make vigenere
    ```
-   Will build and compile the vigenere cipher tool for you, which is really good
-   cipher.
+   Will build and compile the vigenere cipher tool for you, which is a really
+   good cipher.
 
-4. Play
+5. Play
    ```sh
    echo "Happy Birthday" | ./vigenere.out -k liza
    ```
@@ -103,8 +108,10 @@ But all that was not necessary. Yes you figured out the chain, but now you can
 take the help of `pipes` to demonstrate your code breaking abilities in just one
 line:
 ```sh
-echo "..-. ...- -... -.-. .--/.-- ..- . .-. -.-. .--. -. .--" | ./morse.out -d |
-./vigenere.out -dk liza | ./caesar.out -do 13
+echo "..-. ...- -... -.-. .--/.-- ..- . .-. -.-. .--. -. .--" | \
+    ./morse.out -d | \
+    ./vigenere.out -dk liza | \
+    ./caesar.out -do 13
 ```
 And you get:
 ```
@@ -114,7 +121,9 @@ happy birthday
 Pipes are incredible and is something I've taken into deep consideration while
 building this project, such that all of the tools are capable of inputting or
 outputting from or to a pipe, respectively. Also this leaves me from programming
-a lot of jargon that comes with building a proper UI.
+a lot of jargon that comes with building a proper UI. Have a look at this
+[video](https://youtu.be/tc4ROCJYbm0?t=249) where Brian Kernighan shows you how
+Unix pipes work. He was a really cool guy.
 
 ## FAQs
 ### Where are the help pages?
@@ -157,7 +166,8 @@ can find it
 [here](https://gist.github.com/aritra1911/4277a78294878329354eb51790ee75f8).
 
 ### How is your ESP32 Morse Code Transmitter working?
-> *Ref: c24be7aa9596b91dc28b263047cb8f93a580a641*
+> *Ref*: c24be7aa9596b91dc28b263047cb8f93a580a641
+
 It worked pretty good until I burnt its processor while soldering a cap on the
 board to automatically trigger flash mode. I bought another one. It's output was
 current limited for a buzzer so I had to set up a transistor (good ol' 2n3904)
