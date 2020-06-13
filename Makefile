@@ -1,4 +1,4 @@
-all: atbash base64 caesar morse vigenere
+all: atbash base64 caesar morse vigenere xor
 
 atbash: atbash.o shifts.o
 	gcc atbash.o shifts.o -o atbash.out
@@ -17,6 +17,9 @@ morse: morse.o tree_utils.o morse_audio.o write_audio.o
 
 vigenere: vigenere.o shifts.o
 	gcc vigenere.o shifts.o -o vigenere.out
+
+xor: xor.o
+	gcc xor.o -o xor.out
 
 atbash.o: atbash/atbash.c
 	gcc -c atbash/atbash.c
@@ -47,6 +50,9 @@ vigenere.o: vigenere/vigenere.c
 
 write_audio.o: morse/write_audio.c
 	gcc -c morse/write_audio.c
+
+xor.o: xor/xor.c
+	gcc -c xor/xor.c
 
 clean:
 	rm *.o *.out
