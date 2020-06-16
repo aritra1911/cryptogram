@@ -7,12 +7,12 @@
 float unit, f_unit;
 extern int previous_character;
 
-void init_audio(int wpm, int fwpm, int n, float f, float a) {
+void init_audio(int wpm, int fwpm, int n, float f, float a, const char* fn) {
     // calculate units
     unit = 6.0 / (5.0 * wpm);
     f_unit = ((60.0 / fwpm) - (31.0 * unit)) / 19.0;
 
-    init_write(n, f, a);
+    init_write(n, f, a, fn);
 }
 
 int write_code(int ch) {
@@ -59,7 +59,6 @@ int write_code(int ch) {
     return ch;
 }
 
-void export_audio(char* filename) {
-    correct_audio_buffer(unit);
-    render_file(filename);
+void finish_writing() {
+    close_audio_pipe();
 }
