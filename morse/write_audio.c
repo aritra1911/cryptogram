@@ -22,13 +22,13 @@ char* filename;
 FILE* pipeout;
 int sample_rate;
 float frequency, amplitude;
-double sample_width, it;
 
 void init_write(int n, float f, float a, const char* filename) {
     sample_rate = n;
-    sample_width = 1 / sample_rate;
     frequency = f;
     amplitude = a;
+    //pipeout = open_testing_pipe();
+    //return;
 
     if (filename != NULL)
         pipeout = open_rendering_pipe(filename);
@@ -41,14 +41,12 @@ void write_silence(float duration) { write(duration, silence); }
 void write_note(float duration) { write(duration, note); }
 
 void write(float duration, int16_t (*f)(int)) {
-    double initial=it, final=it+duration;
-    printf("%f\n", sample_width);
     int16_t value;
-    for (double t=initial; t<final; t+=sample_width) {
+    int samples = duration * sample_rate;
+    for (int t=0; t<samples; t++) {
         value = f(t);
         fwrite(&value, 2, 1, pipeout); 
     }
-    it = fmod(final, TAU);
 }
 
 FILE* open_testing_pipe() {
@@ -60,7 +58,8 @@ FILE* open_playing_pipe() {
 
     sprintf(command, "%s %s %s %s %s %d %s %s %s %d %s %s",
         FFPLAY_BIN,
-        "-nodisp",  // no visual
+        //"-nodisp",  // no visual
+        "-autoexit",
         "-f", "s16le",
         "-ar", sample_rate,  // audio sampling frequency
         "-i", "-",  // The input comes from a pipe
