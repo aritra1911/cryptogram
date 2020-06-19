@@ -7,7 +7,7 @@
 #define BASE64_CHARACTER_SET \
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
-#define mask(delta) (1 << delta) - 1
+#define mask(delta) ((1 << delta) - 1)
 
 
 void base64_encode(FILE*);

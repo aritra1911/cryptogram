@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     if (argc > 1)
         for (int i=1; i<argc; i++) {
             filename = argv[i];
-            if (fp = fopen(filename, "r"))
+            if ((fp = fopen(filename, "r")))
                 atbash(fp);
             else {
                 fprintf(stderr, "atbash: %s: No such file\n", filename);

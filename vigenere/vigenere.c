@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 void vigenere(char* key, FILE* input, int (*shift)(int, int)) {
     int c, en_c, offset;
 
-    for (int i = 0; (c = getc(input)) != EOF;) {
+    for (size_t i = 0; (c = getc(input)) != EOF;) {
         // here i keeps track of current character in key
         if (i == strlen(key)) i = 0;
         if (isalpha(c)) {

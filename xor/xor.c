@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
             case '?':  // getopt_long aleady printed an error message.
                 break;
             case 'k': key = optarg; break;
-            deafult: abort();
+            default: abort();
         }
     }
 

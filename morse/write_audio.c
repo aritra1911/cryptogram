@@ -1,8 +1,13 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
 #include "write_audio.h"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 #define TAU 2.0*M_PI
 #define MAX_COMMAND_BUFFER 100
@@ -75,7 +80,7 @@ void update_buffer_length(int added_length) {
     audio_buffer = head + (buffer_length - added_length);
 }
 
-int16_t silence(int t) { return 0; }
+int16_t silence(int t) { return 0*t; }
 
 int16_t note(int t) {
     return amplitude * sin((TAU * frequency * t) / (float)sample_rate);
