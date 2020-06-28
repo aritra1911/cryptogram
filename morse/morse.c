@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     deserialize(&root, fp);
     fclose(fp);
 
-    int c; char *filename, *output_filename = "morse.wav";
+    int c; char *filename, *output_filename = NULL;
     bool decrypt = false, flag_from_file = false, audio = false;
     int wpm = 0, fwpm = 0, sample_rate = 8000;
     float frequency = 1000, amplitude = 16383;
@@ -120,9 +120,9 @@ int main(int argc, char* argv[]) {
                 return 0;
             }
 
-            init_audio(wpm, fwpm, sample_rate, frequency, amplitude);
+            init_audio(wpm, fwpm, sample_rate, frequency, amplitude, output_filename);
             morse(root, input, write_code);
-            export_audio(output_filename);
+            finish_writing();
         }
     } else demorse(root, input);
 

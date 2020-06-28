@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <math.h>
 #include "write_audio.h"
 
@@ -11,28 +12,35 @@
 
 #define TAU 2.0*M_PI
 #define MAX_COMMAND_BUFFER 100
+#define FFPLAY_BIN "ffplay"
 #define FFMPEG_BIN "ffmpeg"
 
-#define correct(d) d + (0.5 - fmod(d, 0.5))
-
-void update_buffer_length();
 int16_t silence(int);
 int16_t note(int);
 void write(float, int16_t (*)(int));
+FILE* open_testing_pipe();
+FILE* open_playing_pipe();
+FILE* open_rendering_pipe(const char*);
 
-int16_t *audio_buffer, *head;
-int buffer_length, sample_rate;
-float buffer_duration, frequency, amplitude;
-extern float unit;
+char* filename;
+FILE* pipeout;
+bool output_to_stdout=false;
+int sample_rate;
+float frequency, amplitude;
 
-void init_write(int n, float f, float a) {
+void init_write(int n, float f, float a, const char* filename) {
     sample_rate = n;
     frequency = f;
     amplitude = a;
 
-    head = audio_buffer = NULL;
-    buffer_length = 0;
-    buffer_duration = 0;
+    if (filename != NULL)
+        if (*filename == '-') {
+            pipeout = stdout;
+            output_to_stdout = true;
+        } else
+            pipeout = open_rendering_pipe(filename);
+    else
+        pipeout = open_playing_pipe();
 }
 
 void write_silence(float duration) { write(duration, silence); }
@@ -40,25 +48,34 @@ void write_silence(float duration) { write(duration, silence); }
 void write_note(float duration) { write(duration, note); }
 
 void write(float duration, int16_t (*f)(int)) {
+    int16_t value;
     int samples = duration * sample_rate;
-    buffer_duration += duration;
-    buffer_length += samples;
-    update_buffer_length(samples);
-    for (int t = 0; t < samples; t++) *(audio_buffer++) = f(t);
+    for (int t=0; t<samples; t++) {
+        value = f(t);
+        fwrite(&value, 2, 1, pipeout); 
+    }
 }
 
-void correct_audio_buffer() {
-    buffer_duration -= unit;  // remove extra unit of silence
+FILE* open_playing_pipe() {
+    char* command = malloc(MAX_COMMAND_BUFFER * sizeof *command);
 
-    // add padding to round off to a multiple of 0.5 seconds
-    write_silence(correct(buffer_duration) - buffer_duration);
+    sprintf(command, "%s %s %s %s %s %d %s %s %s %d %s %s",
+        FFPLAY_BIN,
+        //"-nodisp",  // no visual
+        "-autoexit",
+        "-f", "s16le",
+        "-ar", sample_rate,  // audio sampling frequency
+        "-i", "-",  // The input comes from a pipe
+        "-ac", 1,  // Tells FFPLAY to expect an audio channel
+        "-loglevel", "error"
+    );
+
+    return popen(command, "w");
 }
 
-void render_file(char* filename) {
-    // Pipe the audio data to ffmpeg, which writes it to a wav file
-    FILE* pipeout;
+FILE* open_rendering_pipe(const char* filename) {
+    char* command = malloc(MAX_COMMAND_BUFFER * sizeof *command);
 
-    char* command = malloc(MAX_COMMAND_BUFFER * sizeof(char));
     sprintf(command, "%s %s %s %s %s %d %s %s %s %d %s %s %s",
         FFMPEG_BIN,
         "-y",  // overwrite output file if it exists
@@ -70,14 +87,12 @@ void render_file(char* filename) {
         filename
     );
 
-    pipeout = popen(command, "w");
-    fwrite(head, 2 * buffer_duration, sample_rate, pipeout);
-    pclose(pipeout);
+    return popen(command, "w");
 }
 
-void update_buffer_length(int added_length) {
-    head = realloc(head, (buffer_length + 1) * sizeof(int16_t));
-    audio_buffer = head + (buffer_length - added_length);
+void close_audio_pipe() {
+    if (!output_to_stdout)
+        pclose(pipeout);
 }
 
 int16_t silence(int t) { return 0*t; }
