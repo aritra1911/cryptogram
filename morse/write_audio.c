@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <math.h>
 #include "write_audio.h"
 
@@ -8,8 +9,6 @@
 #define MAX_COMMAND_BUFFER 100
 #define FFPLAY_BIN "ffplay"
 #define FFMPEG_BIN "ffmpeg"
-
-#define correct(d) d + (0.5 - fmod(d, 0.5))
 
 int16_t silence(int);
 int16_t note(int);
@@ -20,6 +19,7 @@ FILE* open_rendering_pipe(const char*);
 
 char* filename;
 FILE* pipeout;
+bool output_to_stdout=false;
 int sample_rate;
 float frequency, amplitude;
 
@@ -27,11 +27,13 @@ void init_write(int n, float f, float a, const char* filename) {
     sample_rate = n;
     frequency = f;
     amplitude = a;
-    //pipeout = open_testing_pipe();
-    //return;
 
     if (filename != NULL)
-        pipeout = open_rendering_pipe(filename);
+        if (*filename == '-') {
+            pipeout = stdout;
+            output_to_stdout = true;
+        } else
+            pipeout = open_rendering_pipe(filename);
     else
         pipeout = open_playing_pipe();
 }
@@ -47,10 +49,6 @@ void write(float duration, int16_t (*f)(int)) {
         value = f(t);
         fwrite(&value, 2, 1, pipeout); 
     }
-}
-
-FILE* open_testing_pipe() {
-    return popen("cat > output.bin", "w");
 }
 
 FILE* open_playing_pipe() {
@@ -88,7 +86,8 @@ FILE* open_rendering_pipe(const char* filename) {
 }
 
 void close_audio_pipe() {
-    pclose(pipeout);
+    if (!output_to_stdout)
+        pclose(pipeout);
 }
 
 int16_t silence(int t) { return 0; }
