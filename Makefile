@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -std=c99
 
-all: atbash base64 caesar morse vigenere xor
+all: atbash base64 caesar morse sbx_breaker vigenere xor
 
 atbash: atbash.o shifts.o
 	$(CC) atbash.o shifts.o -o atbash.out
@@ -17,6 +17,9 @@ hex: hex.o
 
 morse: morse.o tree_utils.o morse_audio.o write_audio.o
 	$(CC) morse.o tree_utils.o morse_audio.o write_audio.o -o morse.out -lm
+
+sbx_breaker: sbx_breaker.o
+	$(CC) sbx_breaker.o -o sbx_breaker.out -lm
 
 vigenere: vigenere.o shifts.o
 	$(CC) vigenere.o shifts.o -o vigenere.out
@@ -41,6 +44,9 @@ morse.o: morse/morse.c
 
 morse_audio.o: morse/morse_audio.c
 	$(CC) $(CFLAGS) -c morse/morse_audio.c
+
+sbx_breaker.o: sbx_breaker/sbx_breaker.c
+	$(CC) $(CFLAGS) -c sbx_breaker/sbx_breaker.c
 
 shifts.o: shifts/shifts.c
 	$(CC) $(CFLAGS) -c shifts/shifts.c
