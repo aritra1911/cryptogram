@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <getopt.h>
 
-#define SEPARATOR ' '
+#define SEPARATOR 0
 
 void encode(FILE*);
 void decode(FILE*);
@@ -63,8 +63,11 @@ void encode(FILE* input) {
     bool space = false;
 
     while ((c = getc(input)) != EOF) {
-        if (space) putchar(SEPARATOR);
-        else space = true;
+        if (space) {
+            if (SEPARATOR)
+                putchar(SEPARATOR);
+        } else
+            space = true;
 
         putchar(to_hex(c >> 4));
         putchar(to_hex(c & 15));
