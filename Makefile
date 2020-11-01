@@ -1,4 +1,4 @@
-CC = gcc
+CC ?= gcc
 CFLAGS = -Wall -Wextra -pedantic -std=c99
 
 all: atbash base64 caesar morse sbx_breaker sbx_detect vigenere xor
@@ -70,4 +70,4 @@ xor.o: xor/xor.c
 	$(CC) $(CFLAGS) -c xor/xor.c
 
 clean:
-	rm -f *.o *.out
+	$(RM) *.o *.out
