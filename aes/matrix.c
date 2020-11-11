@@ -20,17 +20,17 @@ void rot_left(mat4 a, size_t row_index, size_t shift) {
     uint8_t temp_row[4];
     copy_row(temp_row, a, row_index);
     for (size_t i=0; i<4; i++)
-        a[row_index*4 + i] = temp_row[(i + shift) % 4];
+        I(a, row_index, i) = temp_row[(i + shift) % 4];
 }
 
 void rot_right(mat4 a, size_t row_index, size_t shift) {
     uint8_t temp_row[4];
     copy_row(temp_row, a, row_index);
     for (size_t i=0; i<4; i++)
-        a[row_index*4 + i] = temp_row[(i - shift + 4) % 4];
+        I(a, row_index, i) = temp_row[(i - shift + 4) % 4];
 }
 
 void copy_row(uint8_t* dest, const mat4 src, size_t row_index) {
     for (size_t i=0; i<4; i++)
-        dest[i] = src[row_index*4 + i];
+        dest[i] = I(src, row_index, i);
 }

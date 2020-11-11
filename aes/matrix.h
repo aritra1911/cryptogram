@@ -1,4 +1,5 @@
 #include <stdint.h>
+#define I(mat,i,j) mat[i + 4*j]
 
 typedef uint8_t mat4[16];
 
